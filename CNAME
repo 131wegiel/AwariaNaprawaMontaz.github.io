@@ -1,1 +1,57 @@
 awarianaprawamontaz.sos.tech
+# yum install bind bind-utils
+# cd etc
+# nano named.conf
+...
+listen-on port 53 { any; };
+listen-on-v6 port 53 { any; };
+...
+allow-query     { any; };
+allow-transfer  { none; };
+...
+zone "AwariaNaprawaMontaz.sos.tech" IN {
+type master;
+file "forward.domena";
+allow-update { none; };
+};
+zone "XX.41.46.in-addr.arpa" IN {
+type master;
+file "reverse.domena";
+allow-update { none; };
+};
+# cd /var/named
+# nano forward.domena
+$TTL 86400
+@   IN  SOA     ns1.AwariaNaprawaMontaz.sos.tech. admin.AwariaNaprawaMontaz.sos.tech. (
+1        ; Serial
+3h       ; Refresh after 3 hours
+1h       ; Retry after 1 hour
+1w       ; Expire after 1 week
+1h )     ; Negative caching TTL of 1 day
+@       IN  NS          ns1.AwariaNaprawaMontaz.sos.tech.
+@       IN  NS          ns2.AwariaNaprawaMontaz.sos.tech.
+@       IN  A           46.41.XX.XX
+ns1     IN  A           46.41.XX.XX
+ns2     IN  A           46.41.XX.XX
+@       IN  MX          10 AwariaNaprawaMontaz.sos.tech.
+www     IN  CNAME   AwariaNaprawaMontaz.sos.tech.
+mail    IN  A       46.41.XX.XX
+ftp     IN CNAME   AwariaNaprawaMontaz.sos.tech.
+# nano reverse.domena
+$TTL 86400
+@   IN  SOA     ns1.AwariaNaprawaMontaz.sos.tech. admin.AwariaNaprawaMontaz.sos.tech. (
+1        ; Serial
+3h       ; Refresh after 3 hours
+1h       ; Retry after 1 hour
+1w       ; Expire after 1 week
+1h )     ; Negative caching TTL of 1 day
+@       IN  NS          ns1.AwariaNaprawaMontaz.sos.tech.
+ns1     IN  A           46.41.XX.XX
+YY      IN  PTR         ns1.AwariaNaprawaMontaz.sos.tech.
+@       IN  NS          ns2.AwariaNaprawaMontaz.sos.tech.
+ns2     IN  A           46.41.XX.XX
+YY      IN  PTR         ns2.AwariaNaprawaMontaz.sos.tech.
+# systemctl start named.service
+# named-checkconf /etc/named.conf
+# named-checkzone AwariaNaprawaMontaz.sos.tech /var/named/forward.domena
+# named-checkzone AwariaNaprawaMontaz.sos.tech /var/named/reverse.domena
